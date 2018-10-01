@@ -56,9 +56,14 @@ int main (int argc, char* argv[]) {
     int counter = 0;
     for (int i = 0; i < max; i++) {
         if (check[magnitude[i]] == 0) {
-            printf("%d ", magnitude[i]);
             check[magnitude[i]] = 1;
         }   
+    }
+
+    for(int i = 0; i < max; i++){
+        if (check[i] == 1){
+            printf("%d ", i);
+        }
     }
 
     printf("\n");
