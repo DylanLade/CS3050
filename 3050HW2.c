@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 void build_array(int** graph,int magnitude[], int max);
-void supBitch();
 
 int main (int argc, char* argv[]) {
 
@@ -60,7 +59,6 @@ int main (int argc, char* argv[]) {
             printf("%d ", magnitude[i]);
             check[magnitude[i]] = 1;
         }   
-        supBitch();
     }
 
     printf("\n");
@@ -77,8 +75,4 @@ void build_array (int** graph, int magnitude[], int max) {
         }
         ++index;
     }
-}
-
-void supBitch(){
-    printf("Sup Bitch\n");
 }
