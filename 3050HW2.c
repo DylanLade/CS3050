@@ -53,18 +53,14 @@ int main (int argc, char* argv[]) {
     }
     build_array(input, magnitude, check, max);
 
-    int counter = 0;
-    // for (int i = 0; i < max; i++) {
-    //     if (check[magnitude[i]] == 0) {
-    //         check[magnitude[i]] = 1;
-    //     }   
-    // }
-
     for(int i = 0; i < max; i++){
         if (check[i] == 1){
             printf("%d ", i);
         }
     }
+
+    fclose(inptr);
+    free(input);
 
     printf("\n");
     return 0;
@@ -82,3 +78,13 @@ void build_array (int** graph, int magnitude[], int check[], int max) {
         ++index;
     }
 }
+
+/* New Program Flow:
+
+    Build the graph and create the adjacency list
+    search the graph for the SCC 
+    turn the SCC into one component
+    build the graph with that
+    find the out degree of the SCC
+
+*/
