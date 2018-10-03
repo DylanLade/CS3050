@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void build_array(int** graph,int magnitude[], int max);
+void build_array(int** graph,int magnitude[], int check[], int max);
 
 int main (int argc, char* argv[]) {
 
@@ -51,14 +51,14 @@ int main (int argc, char* argv[]) {
         magnitude[i] = 0;
         check[i] = 0;
     }
-    build_array(input, magnitude, max);
+    build_array(input, magnitude, check, max);
 
     int counter = 0;
-    for (int i = 0; i < max; i++) {
-        if (check[magnitude[i]] == 0) {
-            check[magnitude[i]] = 1;
-        }   
-    }
+    // for (int i = 0; i < max; i++) {
+    //     if (check[magnitude[i]] == 0) {
+    //         check[magnitude[i]] = 1;
+    //     }   
+    // }
 
     for(int i = 0; i < max; i++){
         if (check[i] == 1){
@@ -70,13 +70,14 @@ int main (int argc, char* argv[]) {
     return 0;
 }
 
-void build_array (int** graph, int magnitude[], int max) {
+void build_array (int** graph, int magnitude[], int check[], int max) {
     int index = 0;
     int temp;
     while(*(graph + index) != NULL){
         if(index == 0 || index % 2 == 0){
             temp =(**(graph + index));
             ++magnitude[temp - 1];
+            check[magnitude[temp -1]] = 1;
         }
         ++index;
     }
