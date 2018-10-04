@@ -67,7 +67,7 @@ int main (int argc, char* argv[]) {
 
     build_array(input, vertices, max);
 
-    
+
 
     fclose(inptr);
     free(input);
@@ -77,7 +77,24 @@ int main (int argc, char* argv[]) {
 }
 
 void build_array (int** graph, Vert vert[], int max) {
-    
+    int index = 0, temp, dest, tempDest;
+    for(int i = 0; i < max; i++){
+        vert[i].adj[10 * max];
+    }
+    while(*(graph + index) != NULL){
+        if(index == 0 || index % 2 == 0){
+            temp = *(graph + index);
+            dest = *(graph + (index + 1));
+            vert[temp -1].magnitude++;
+            int i = 0;
+            while(vert[temp -1].adj[i] != NULL){
+                tempDest = vert[temp - 1].adj[i];
+                if(tempDest < dest){
+                    
+                }
+            }
+        }
+    }
 }
 
 void push(int v, Stack s, int max){
