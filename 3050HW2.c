@@ -13,10 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_VERT  20
+
 typedef struct{
     int visited;
     int magnitude;
-    int adj[];
+    int adj[MAX_VERT];
 } Vert;
 
 typedef struct{
@@ -24,7 +26,7 @@ typedef struct{
     int* elements;
 } Stack;
 
-void build_array(int s, int d, Vert vert[], int max);
+void build_array(int s, int d, Vert* vert, int max);
 void push(int v, Stack stack, int max);
 int pop(Stack stack);
 void dfs(int v, int transpose, Vert vert[]);
@@ -73,33 +75,39 @@ int main (int argc, char* argv[]) {
     int* init = stack.elements;
     for(int i = 0; i < max; i++){
       *(init + i)  = ' ';
-   }
-   printf("Stack init works\n");
+    }
+    printf("Stack init works\n");
+    printf("Max: %d\n", max);
+    printf("Max: %d\n", max);
 
 
-   for(int i = 0; i <= max; i++){
+   for(int i = 0; i < max; i++){
       vertices[i].visited = 0;
       vertices[i].magnitude = 0;
-      vertices[i].adj[2 * max];
-      for(int j = 0; j < (2*max); j++){
+      for(int j = 0; j < MAX_VERT; j++){
           vertices[i].adj[j] = ' ';
       }
+    //   printf("Visited: %d Magnitude: %d Index: %d\n", vertices[i].visited, vertices[i].magnitude, i);
    }
+   printf("Max: %d\n", max);
 
    printf("Vert init works\n");
-
-   while((*(input+index)) != NULL){
-      if(index == 0 || index % 2 == 0){
-         int source = **(input+index);
-         int dest = **(input+index);
-         build_array(source, dest, vertices, max);
+    index = 0;
+    printf("Max: %d\n", max);
+    while((*(input+index)) != NULL){
+       if(index == 0 || index % 2 == 0){
+            int source = **(input+index);
+            int dest = **(input+(index+1));
+            build_array(source, dest, vertices, max);
       }
       index++;
    }
 
    printf("After build_array Loop\n");
+   printf("Max: %d\n", max);
    for(int i = 0; i < max; i++){
       printf("%d ", vertices[i].magnitude);
+    //   printf("\nIndex: %d\n", i);
    }
 
 
@@ -111,7 +119,7 @@ int main (int argc, char* argv[]) {
    return 0;
 }
 
-void build_array (int s, int d, Vert vert[], int max) {
+void build_array (int s, int d, Vert* vert, int max) {
    int i = 0;
    int temp;
    vert[s-1].magnitude++;
@@ -120,7 +128,7 @@ void build_array (int s, int d, Vert vert[], int max) {
       i++;
    }
 
-   vert[s-1].adj[i] = d;
+    vert[s-1].adj[i] = d;
 
 }
 
