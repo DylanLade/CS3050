@@ -64,6 +64,7 @@ int main (int argc, char* argv[]) {
       printf("%d ", **(input + index));
 		++index;
 	}
+    printf("Max: %d", max);
    printf("\n");
    printf("%d\n", index);
     Vert vertices[max];
@@ -71,7 +72,7 @@ int main (int argc, char* argv[]) {
     stack.top = -1;
     stack.elements = malloc(sizeof(int)* max);
     int* init = stack.elements;
-    for(int i = 0; i < max; i++){
+    for(int i = 0; i <= max + 1; i++){
       *(init + i)  = ' ';
    }
    printf("Stack init works\n");
@@ -88,11 +89,14 @@ int main (int argc, char* argv[]) {
 
    printf("Vert init works\n");
 
-   while((*(input+index)) != NULL){
+   //while((*(input+index)) != NULL){
+    index = 0;
+    while(index <= max) {
       if(index == 0 || index % 2 == 0){
          int source = **(input+index);
-         int dest = **(input+index);
+         int dest = **(input+index+1);
          build_array(source, dest, vertices, max);
+         printf("s:%d | d:%d\n", source, dest);
       }
       index++;
    }
@@ -115,7 +119,8 @@ void build_array (int s, int d, Vert vert[], int max) {
    int i = 0;
    int temp;
    vert[s-1].magnitude++;
-
+   printf("mag: %d | ", vert[s-1].magnitude);
+   //printf(". ");
    while(vert[s-1].adj[i] != ' '){
       i++;
    }
