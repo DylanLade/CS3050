@@ -1,16 +1,17 @@
 //  Machine Problem 2
 //  CS3050
 //  Saab
-// 
+//
 
-/* 
-    Dylan Lade 
+/*
+    Dylan Lade
     William Givens
     Claire Hough
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct{
     int visited;
@@ -20,12 +21,12 @@ typedef struct{
 
 typedef struct{
     int top;
-    int elements[];
+    int* elements;
 } Stack;
 
-void build_array(int** graph, Vert vert[], int max);
-void push(int v, Stack s, int max);
-int pop(Stack s);
+void build_array(int s, int d, Vert vert[], int max);
+void push(int v, Stack stack, int max);
+int pop(Stack stack);
 void dfs(int v, int transpose, Vert vert[]);
 void reset_visited(int max, Vert vert[]);
 void order_pass(int max, Vert vert[]);
@@ -47,6 +48,7 @@ int main (int argc, char* argv[]) {
     int index = 0;
 
     //Read in input file into input
+    printf("File input: \n");
     FILE *inptr = fopen(inputFile, "r");
     while (0 == 0) {
 		if (feof(inptr)) {
@@ -59,56 +61,81 @@ int main (int argc, char* argv[]) {
         if (max < **(input + index)) {
             max = **(input + index);
         }
+      printf("%d ", **(input + index));
 		++index;
-	}	
-
+	}
+   printf("\n");
+   printf("%d\n", index);
     Vert vertices[max];
-    Stack stack = {-1, {}};
-
-    build_array(input, vertices, max);
-
-
-
-    fclose(inptr);
-    free(input);
-
-    printf("\n");
-    return 0;
-}
-
-void build_array (int** graph, Vert vert[], int max) {
-    int index = 0, temp, dest, tempDest;
+    Stack stack;
+    stack.top = -1;
+    stack.elements = malloc(sizeof(int)* max);
+    int* init = stack.elements;
     for(int i = 0; i < max; i++){
-        vert[i].adj[10 * max];
-    }
-    while(*(graph + index) != NULL){
-        if(index == 0 || index % 2 == 0){
-            temp = *(graph + index);
-            dest = *(graph + (index + 1));
-            vert[temp -1].magnitude++;
-            int i = 0;
-            while(vert[temp -1].adj[i] != NULL){
-                tempDest = vert[temp - 1].adj[i];
-                if(tempDest < dest){
-                    
-                }
-            }
-        }
-    }
+      *(init + i)  = ' ';
+   }
+   printf("Stack init works\n");
+
+
+   for(int i = 0; i <= max; i++){
+      vertices[i].visited = 0;
+      vertices[i].magnitude = 0;
+      vertices[i].adj[2 * max];
+      for(int j = 0; j < (2*max); j++){
+          vertices[i].adj[j] = ' ';
+      }
+   }
+
+   printf("Vert init works\n");
+
+   while((*(input+index)) != NULL){
+      if(index == 0 || index % 2 == 0){
+         int source = **(input+index);
+         int dest = **(input+index);
+         build_array(source, dest, vertices, max);
+      }
+      index++;
+   }
+
+   printf("After build_array Loop\n");
+   for(int i = 0; i < max; i++){
+      printf("%d ", vertices[i].magnitude);
+   }
+
+
+
+   fclose(inptr);
+   free(input);
+
+   printf("\n");
+   return 0;
 }
 
-void push(int v, Stack s, int max){
-    s.top++;
-    if(s.top < max){
-        s.elements[s.top] = v;
+void build_array (int s, int d, Vert vert[], int max) {
+   int i = 0;
+   int temp;
+   vert[s-1].magnitude++;
+
+   while(vert[s-1].adj[i] != ' '){
+      i++;
+   }
+
+   vert[s-1].adj[i] = d;
+
+}
+
+void push(int v, Stack stack, int max){
+    stack.top++;
+    if(stack.top < max){
+        stack.elements[stack.top] = v;
     } else{
         printf("Stack is full\n");
         exit(1);
     }
 }
 
-int pop(Stack s){
-    return s.top < 0 ? -1 : s.elements[s.top--];
+int pop(Stack stack){
+    return stack.top < 0 ? -1 : stack.elements[stack.top--];
 }
 
 void dfs(int v, int transpose, Vert vert[]){
@@ -139,9 +166,9 @@ void order_pass(int max, Vert vert[]){
     }
 }
 
-void scc_pass(Stack s, Vert vert[]){
+void scc_pass(Stack stack, Vert vert[]){
     int i = 0, v;
-    while((v = pop(s)) != -1){
+    while((v = pop(stack)) != -1){
         if(!vert[v].visited){
             printf("scc %d", ++i);
             dfs(v, 1, vert);
@@ -153,7 +180,7 @@ void scc_pass(Stack s, Vert vert[]){
 /* New Program Flow:
 
     Build the graph and create the adjacency list
-    search the graph for the SCC 
+    search the graph for the SCC
     turn the SCC into one component
     build the graph with that
     find the out degree of the SCC
