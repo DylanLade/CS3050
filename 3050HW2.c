@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define MAX_VERT  20
 
@@ -98,12 +99,33 @@ int main (int argc, char* argv[]) {
          int source = **(input+index);
          int dest = **(input+index+1);
          build_array(source, dest, vertices, max);
-        //  printf("s:%d | d:%d\n", source, dest);
+         printf("s: %d | d: %d\n", source, dest);
       }
       index++;
    }
 
-   printf("After build_array Loop\n");
+//    printf("After build_array Loop\n");
+//     int temp = 43434213;
+//     for(index = 0; index < max; index++) {
+//         for(int i = 0; i < vertices[index].magnitude; i++) {
+//             if(abs(vertices[index].adj[i]) > abs(vertices[index].adj[i+1])) {
+//                 temp = vertices[index].adj[i];
+//                 vertices[index].adj[i] = vertices[index].adj[i+1];
+//                 vertices[index].adj[i+1] = vertices[index].adj[i];
+//             }
+//         }
+        
+//     }
+    int i = 0;
+    for(index = 0; index < max; index++) {
+        printf("v: %d | ", index + 1);
+        i = 0;
+        while(vertices[index].adj[i] != ' ') {
+            printf("%d ", vertices[index].adj[i]);
+            i++;
+        }
+        printf("\n");
+    }
 
     order_pass(max, vertices, stack);
     reset_visited(max, vertices);
@@ -120,7 +142,8 @@ void build_array (int s, int d, Vert* vert, int max) {
    int i = 0;
    int temp;
    vert[s-1].magnitude++;
-//    printf("mag: %d | ", vert[s-1].magnitude);
+   vert[d-1].magnitude++;
+   //printf("mag: %d | ", vert[s-1].magnitude);
    //printf(". ");
     while(vert[s-1].adj[i] != ' '){
       i++;
@@ -133,6 +156,7 @@ void build_array (int s, int d, Vert* vert, int max) {
     }
     vert[d-1].adj[j] = -s;
 
+    printf("pos: %d | neg: %d \n", vert[s-1].adj[i], vert[d-1].adj[j]);
 }
 
 void push(int v, Stack* stack, int max){
@@ -160,6 +184,9 @@ void dfs(int v, int transpose, Vert vert[], Stack* stack, int max){
             if(!vert[n-1].visited){
                 dfs(n-1, transpose, vert, stack, max);
             }
+            // else{
+            //     printf("v: %d\n", vert);
+            // }
         }
     }
     if (transpose < 0){
@@ -184,13 +211,14 @@ void order_pass(int max, Vert vert[], Stack* stack){
             dfs(i , -1, vert, stack, max);
         }
     }
+
     printf("\n");
 }
 
 void scc_pass(Stack* stack, Vert vert[], int max){
     int i = 0, v;
     while((v = pop(stack)) != -1){
-        // printf("SCC pass ");
+        //printf("v: %d\n", v);
         if(!vert[v].visited){
             printf("scc %d: ", ++i);
             dfs(v, 1, vert, stack, max);
