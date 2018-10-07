@@ -29,9 +29,9 @@ typedef struct{
 void build_array(int s, int d, Vert* vert, int max);
 void push(int v, Stack stack, int max);
 int pop(Stack stack);
-void dfs(int v, int transpose, Vert vert[]);
+void dfs(int v, int transpose, Vert vert[], Stack stack);
 void reset_visited(int max, Vert vert[]);
-void order_pass(int max, Vert vert[]);
+void order_pass(int max, Vert vert[], Stack stack);
 void scc_pass(Stack s, Vert vert[]);
 
 int main (int argc, char* argv[]) {
@@ -104,17 +104,19 @@ int main (int argc, char* argv[]) {
    }
 
    printf("After build_array Loop\n");
-   for(int i = 0; i < max; i++){
-      printf("Magnitude: %d ", vertices[i].magnitude);
-      int j = 0;
-      printf("\nAdjacent: ");      
-      while(vertices[i].adj[j] != ' '){
-          printf("%d ", vertices[i].adj[j]);
-          j++;
-      }
-      printf("\n");
-    //   printf("\nIndex: %d\n", i);
-   }
+//    for(int i = 0; i < max; i++){
+//       printf("Magnitude: %d ", vertices[i].magnitude);
+//       int j = 0;
+//       printf("\nAdjacent: ");      
+//       while(vertices[i].adj[j] != ' '){
+//           printf("%d ", vertices[i].adj[j]);
+//           j++;
+//       }
+//       printf("\n");
+//     //   printf("\nIndex: %d\n", i);
+//    }
+
+    order_pass(max, vertices, stack);
 
    fclose(inptr);
    free(input);
@@ -156,7 +158,7 @@ int pop(Stack stack){
     return stack.top < 0 ? -1 : stack.elements[stack.top--];
 }
 
-void dfs(int v, int transpose, Vert vert[]){
+void dfs(int v, int transpose, Vert vert[], Stack stack){
     int i, c ,n;
     vert[v].visited = 1;
     for(i = 0, c = vert[v].magnitude; i < c; ++i){
@@ -164,7 +166,7 @@ void dfs(int v, int transpose, Vert vert[]){
 
         if(n > 0){
             if(!vert[n-1].visited){
-                dfs(n-1, transpose, vert);
+                dfs(n-1, transpose, vert, stack);
             }
         }
     }
@@ -181,20 +183,20 @@ void reset_visited(int max, Vert vert[]){
     }
 }
 
-void order_pass(int max, Vert vert[]){
+void order_pass(int max, Vert vert[], Stack stack){
     for(int i = 0; i < max; ++i){
         if(!vert[i].visited){
-            dfs(i , -1, vert);
+            dfs(i , -1, vert, stack);
         }
     }
 }
 
-void scc_pass(Stack stack, Vert vert[]){
+void scc_pass(Stack s, Vert vert[]){
     int i = 0, v;
-    while((v = pop(stack)) != -1){
+    while((v = pop(s)) != -1){
         if(!vert[v].visited){
             printf("scc %d", ++i);
-            dfs(v, 1, vert);
+            dfs(v, 1, vert, s);
             printf("\n");
         }
     }
