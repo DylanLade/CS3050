@@ -23,16 +23,16 @@ typedef struct{
 
 typedef struct{
     int top;
-    int* elements;
+    int elements[MAX_VERT];
 } Stack;
 
 void build_array(int s, int d, Vert* vert, int max);
-void push(int v, Stack stack, int max);
-int pop(Stack stack);
-void dfs(int v, int transpose, Vert vert[], Stack stack);
+void push(int v, Stack* stack, int max);
+int pop(Stack* stack);
+void dfs(int v, int transpose, Vert vert[], Stack* stack, int max);
 void reset_visited(int max, Vert vert[]);
-void order_pass(int max, Vert vert[], Stack stack);
-void scc_pass(Stack s, Vert vert[]);
+void order_pass(int max, Vert vert[], Stack* stack);
+void scc_pass(Stack* stack, Vert vert[], int max);
 
 int main (int argc, char* argv[]) {
 
@@ -71,13 +71,13 @@ int main (int argc, char* argv[]) {
     printf("%d\n", index);
 
     Vert vertices[max];
-    Stack stack;
-    stack.top = -1;
-    stack.elements = malloc(sizeof(int)* max);
-    
-    int* init = stack.elements;
+    Stack* stack = malloc(sizeof(stack));
+    printf("Create Stack pointer\n");
+    stack->top = -1;
+    printf("Initialize top\n");
+   
     for(int i = 0; i <= max + 1; i++){
-      *(init + i)  = ' ';
+      stack->elements[i]  = ' ';
     }
     printf("Stack init works\n");
 
@@ -104,19 +104,10 @@ int main (int argc, char* argv[]) {
    }
 
    printf("After build_array Loop\n");
-//    for(int i = 0; i < max; i++){
-//       printf("Magnitude: %d ", vertices[i].magnitude);
-//       int j = 0;
-//       printf("\nAdjacent: ");      
-//       while(vertices[i].adj[j] != ' '){
-//           printf("%d ", vertices[i].adj[j]);
-//           j++;
-//       }
-//       printf("\n");
-//     //   printf("\nIndex: %d\n", i);
-//    }
 
     order_pass(max, vertices, stack);
+    reset_visited(max, vertices);
+    scc_pass(stack, vertices, max);
 
    fclose(inptr);
    free(input);
@@ -144,21 +135,22 @@ void build_array (int s, int d, Vert* vert, int max) {
 
 }
 
-void push(int v, Stack stack, int max){
-    stack.top++;
-    if(stack.top < max){
-        stack.elements[stack.top] = v;
+void push(int v, Stack* stack, int max){
+    stack->top++;
+    // printf("Stack Top: %d ", stack->top);
+    if(stack->top < max){
+        stack->elements[stack->top] = v;
     } else{
         printf("Stack is full\n");
         exit(1);
     }
 }
 
-int pop(Stack stack){
-    return stack.top < 0 ? -1 : stack.elements[stack.top--];
+int pop(Stack* stack){
+    return stack->top < 0 ? -1 : stack->elements[stack->top--];
 }
 
-void dfs(int v, int transpose, Vert vert[], Stack stack){
+void dfs(int v, int transpose, Vert vert[], Stack* stack, int max){
     int i, c ,n;
     vert[v].visited = 1;
     for(i = 0, c = vert[v].magnitude; i < c; ++i){
@@ -166,12 +158,12 @@ void dfs(int v, int transpose, Vert vert[], Stack stack){
 
         if(n > 0){
             if(!vert[n-1].visited){
-                dfs(n-1, transpose, vert, stack);
+                dfs(n-1, transpose, vert, stack, max);
             }
         }
     }
     if (transpose < 0){
-	    stack_push(v);
+	    push(v, stack, max);
     } else{
 	    printf("%d ", v + 1);
     }
@@ -179,24 +171,29 @@ void dfs(int v, int transpose, Vert vert[], Stack stack){
 
 void reset_visited(int max, Vert vert[]){
     for(int i = 0; i < max; ++i){
+        // printf("Reset visited to 0 ");
         vert[i].visited = 0;
     }
+    printf("\n");
 }
 
-void order_pass(int max, Vert vert[], Stack stack){
+void order_pass(int max, Vert vert[], Stack* stack){
     for(int i = 0; i < max; ++i){
         if(!vert[i].visited){
-            dfs(i , -1, vert, stack);
+            // printf("Ordered Pass DFS ");
+            dfs(i , -1, vert, stack, max);
         }
     }
+    printf("\n");
 }
 
-void scc_pass(Stack s, Vert vert[]){
+void scc_pass(Stack* stack, Vert vert[], int max){
     int i = 0, v;
-    while((v = pop(s)) != -1){
+    while((v = pop(stack)) != -1){
+        // printf("SCC pass ");
         if(!vert[v].visited){
-            printf("scc %d", ++i);
-            dfs(v, 1, vert, s);
+            printf("scc %d: ", ++i);
+            dfs(v, 1, vert, stack, max);
             printf("\n");
         }
     }
