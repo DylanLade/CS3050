@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_VERT  20
+#define MAX_VERT  40
 
 typedef struct{
     int visited;
@@ -43,18 +43,19 @@ typedef struct scc{
     struct scc* next;
 } SCC;
 
-void buildArray(int s, int d, Vert* vert);
-void pushStack(int vert, Stack* stack, int max);
-void stackDfs(int vertIndex, Vert vert[], Stack* stack, int max);
+void sccOut(SCC* sccList);
 void sccDfs(int vertIndex, Vert vert[], SCC* scc);
-void buildStack(int max, Vert vert[], Stack* stack);
 void findSCC(Stack* stack, Vert vert[], int max, SCC* scc);
+SCC* addSCC (SCC* head);
+void buildArray(int s, int d, Vert* vert);
+Stack* initializeStack (int max);
+void stackDfs(int vertIndex, Vert vert[], Stack* stack, int max);
+void pushStack(int vert, Stack* stack, int max);
+void buildStack(int max, Vert vert[], Stack* stack);
 void freeList (SCC* head);
 void addAdjVert (SCC* scc, int vert);
 int checkDuplicate (SCC* scc, int vert);
-void sccOut(SCC* sccList);
-SCC* addSCC (SCC* head);
-Stack* initializeStack (int max);
+
 
 int main (int argc, char* argv[]) {
 
@@ -128,7 +129,7 @@ int main (int argc, char* argv[]) {
 }
 
 
-void sccDfs(int vertIndex, Vert vert[], SCC* scc){
+void sccDfs (int vertIndex, Vert vert[], SCC* scc) {
     int index, mag , adj;
     vert[vertIndex].visited = 1;
     for(index = 0, mag = vert[vertIndex].magnitude; index < mag; ++index){
@@ -145,7 +146,7 @@ void sccDfs(int vertIndex, Vert vert[], SCC* scc){
 }
 
 
-void findSCC(Stack* stack, Vert vert[], int max, SCC* sccList){
+void findSCC (Stack* stack, Vert vert[], int max, SCC* sccList) {
     int vertIndex;
 
     while(stack->top > -1){
@@ -173,14 +174,14 @@ void buildArray (int source, int dest, Vert* vert) {
 }
 
 
-void pushStack(int vert, Stack* stack, int max){
+void pushStack (int vert, Stack* stack, int max) {
     stack->top++;
     if(stack->top < max) stack->elements[stack->top] = vert;
     else exit(1);
 }
 
 
-void stackDfs(int vertIndex, Vert vert[], Stack* stack, int max){
+void stackDfs (int vertIndex, Vert vert[], Stack* stack, int max) {
     int index, mag , adj;
     vert[vertIndex].visited = 1;
     for(index = 0, mag = vert[vertIndex].magnitude; index < mag; ++index){
@@ -192,7 +193,7 @@ void stackDfs(int vertIndex, Vert vert[], Stack* stack, int max){
 }
 
 
-void buildStack(int max, Vert vert[], Stack* stack){
+void buildStack (int max, Vert vert[], Stack* stack) {
     for(int index = 0; index < max; ++index){
         if(!vert[index].visited) stackDfs(index , vert, stack, max);
     }
@@ -224,7 +225,7 @@ SCC* addSCC (SCC* head) {
 }
 
 
-void sccOut(SCC* sccList) {
+void sccOut (SCC* sccList) {
     int sccMag;
 
     SCC* REALhead = sccList;
@@ -236,11 +237,9 @@ void sccOut(SCC* sccList) {
             int vertIndex = 0;
             while (vertIndex < head->vMag){
                 for (int x = 0; x < sccList->adjMag; x++) {
-                    if (head->vList[vertIndex] == sccList->adjList[x]) {
-                        if (head->visited != 1){
-                            head->visited = 1;
-                            sccMag++;
-                        }                        
+                    if (head->vList[vertIndex] == sccList->adjList[x] && head->visited != 1) {
+                        head->visited = 1;
+                        sccMag++;                       
                     }    
                 }
                 vertIndex++;
