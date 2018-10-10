@@ -26,13 +26,19 @@ typedef struct{
     int elements[MAX_VERT];
 } Stack;
 
+typedef struct{
+    int outDegree;
+    int index;
+    int components[MAX_VERT];
+} GraphSCC;
+
 void build_array(int s, int d, Vert* vert, int max);
 void push(int v, Stack* stack, int max);
 int pop(Stack* stack);
-void dfs(int v, int transpose, Vert vert[], Stack* stack, int max);
+void dfs(int v, int transpose, Vert vert[], Stack* stack, int max, GraphSCC graphSCC[]);
 void reset_visited(int max, Vert vert[]);
-void order_pass(int max, Vert vert[], Stack* stack);
-void scc_pass(Stack* stack, Vert vert[], int max);
+void order_pass(int max, Vert vert[], Stack* stack, GraphSCC graphSCC[]);
+void scc_pass(Stack* stack, Vert vert[], int max, GraphSCC graphSCC[]);
 
 int main (int argc, char* argv[]) {
 
@@ -93,9 +99,18 @@ int main (int argc, char* argv[]) {
         index++;
     }
 
-    order_pass(max, vertices, stack);
+    GraphSCC graphSCC[max];
+    for(index = 0; index < max; index++){
+        graphSCC[index].index = 0;
+        graphSCC[index].outDegree = 0;
+        for(int j = 0; j < max; j++){
+            graphSCC[index].components[j] = 0;
+        }
+    }
+
+    order_pass(max, vertices, stack, graphSCC);
     reset_visited(max, vertices);
-    scc_pass(stack, vertices, max);
+    scc_pass(stack, vertices, max, graphSCC);
 
     fclose(inptr);
     free(input);
@@ -136,7 +151,7 @@ int pop(Stack* stack){
     return stack->top < 0 ? -1 : stack->elements[stack->top--];
 }
 
-void dfs(int v, int transpose, Vert vert[], Stack* stack, int max){
+void dfs(int v, int transpose, Vert vert[], Stack* stack, int max, GraphSCC graphSCC[]){
     int i, c ,n;
     vert[v].visited = 1;
     for(i = 0, c = vert[v].magnitude; i < c; ++i){
@@ -144,7 +159,7 @@ void dfs(int v, int transpose, Vert vert[], Stack* stack, int max){
 
         if(n > 0){
             if(!vert[n-1].visited){
-                dfs(n-1, transpose, vert, stack, max);
+                dfs(n-1, transpose, vert, stack, max, graphSCC);
             }
         }
     }
@@ -161,21 +176,22 @@ void reset_visited(int max, Vert vert[]){
     }
 }
 
-void order_pass(int max, Vert vert[], Stack* stack){
+void order_pass(int max, Vert vert[], Stack* stack, GraphSCC graphSCC[]){
     for(int i = 0; i < max; ++i){
         if(!vert[i].visited){
-            dfs(i , -1, vert, stack, max);
+            dfs(i , -1, vert, stack, max, graphSCC);
         }
     }
 }
 
-void scc_pass(Stack* stack, Vert vert[], int max){
+void scc_pass(Stack* stack, Vert vert[], int max, GraphSCC graphSCC[]){
     int i = 0, v;
     while((v = pop(stack)) != -1){
         // printf("SCC pass ");
         if(!vert[v].visited){
             printf("scc %d: ", ++i);
-            dfs(v, 1, vert, stack, max);
+            graphSCC[i].index = i;
+            dfs(v, 1, vert, stack, max, graphSCC);
             printf("\n");
         }
     }
