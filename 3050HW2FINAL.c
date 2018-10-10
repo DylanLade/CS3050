@@ -19,9 +19,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <unistd.h>
 
 #define MAX_VERT  20
 
@@ -38,9 +35,9 @@ typedef struct{
 
 typedef struct scc{
     int vList[MAX_VERT];
+    int vMag;
     int adjList[MAX_VERT];
     int adjMag;
-    int vMag;
     int visited;
     int sccMag;
     struct scc* next;
