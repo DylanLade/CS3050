@@ -46,7 +46,7 @@ typedef struct scc{
     struct scc* next;
 } SCC;
 
-void buildArray(int s, int d, Vert* vert, int max);
+void buildArray(int s, int d, Vert* vert);
 void pushStack(int vert, Stack* stack, int max);
 void stackDfs(int vertIndex, Vert vert[], Stack* stack, int max);
 void sccDfs(int vertIndex, Vert vert[], SCC* scc);
@@ -108,17 +108,16 @@ int main (int argc, char* argv[]) {
         if(index == 0 || index % 2 == 0){
             int source = **(input+index);
             int dest = **(input+index+1);
-            buildArray(source, dest, vertices, max);
+            buildArray(source, dest, vertices);
         }
         index++;
     }
-    
-    SCC* sccHead = addSCC (NULL);
-    
+        
     //Translate vertices to stack
     buildStack(max, vertices, stack);
-
-    //Find strongly connected components in graph   
+    
+    //Find strongly connected components in graph 
+    SCC* sccHead = addSCC (NULL);  
     findSCC(stack, vertices, max, sccHead);
 
     //Print out degree of the SCCs
@@ -164,7 +163,7 @@ void findSCC(Stack* stack, Vert vert[], int max, SCC* sccList){
 }
 
 
-void buildArray (int source, int dest, Vert* vert, int max) {
+void buildArray (int source, int dest, Vert* vert) {
    int index = 0;
 
    vert[source-1].magnitude++;
@@ -326,4 +325,3 @@ void freeList (SCC* vert) {
 
     vert = NULL;
 }
-
