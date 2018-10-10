@@ -76,16 +76,14 @@ int main (int argc, char* argv[]) {
     //Read in input file into input
     FILE *inptr = fopen(inputFile, "r");
     while (0 == 0) {
-		if (feof(inptr)) {
-			break;
-		}
+		if (feof(inptr)) break;
+
 		*(input + index) = malloc(sizeof(int*));
 		fscanf(inptr,"%d", *(input + index));
 
         //Calculate max number of vertices
-        if (max < **(input + index)) {
-            max = **(input + index);
-        }
+        if (max < **(input + index)) max = **(input + index);
+
 		++index;
 	}
 
@@ -180,11 +178,8 @@ void buildArray (int source, int dest, Vert* vert) {
 
 void pushStack(int vert, Stack* stack, int max){
     stack->top++;
-    if(stack->top < max){
-        stack->elements[stack->top] = vert;
-    } else{
-        exit(1);
-    }
+    if(stack->top < max) stack->elements[stack->top] = vert;
+    else exit(1);
 }
 
 
@@ -202,9 +197,7 @@ void stackDfs(int vertIndex, Vert vert[], Stack* stack, int max){
 
 void buildStack(int max, Vert vert[], Stack* stack){
     for(int index = 0; index < max; ++index){
-        if(!vert[index].visited){
-            stackDfs(index , vert, stack, max);
-        }
+        if(!vert[index].visited) stackDfs(index , vert, stack, max);
     }
 
     for(int i = 0; i < max; ++i) vert[i].visited = 0;
@@ -219,9 +212,8 @@ SCC* addSCC (SCC* head) {
     }
     else {
         SCC* temp = head;       
-        while(temp->next != NULL) {
-            temp = temp->next;
-        }
+        while(temp->next != NULL) temp = temp->next;
+        
         temp->next = malloc(sizeof(SCC));
         new = temp->next;
     }   
@@ -271,9 +263,7 @@ void sccOut(SCC* sccList) {
 void addAdjVert (SCC* scc, int vert) {
     int adjIndex = 0;
     while (adjIndex < scc->adjMag){
-        if(scc->adjList[adjIndex] != vert) {
-            adjIndex++;
-        }
+        if(scc->adjList[adjIndex] != vert) adjIndex++;
         else return;
     }
 
