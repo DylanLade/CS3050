@@ -32,7 +32,7 @@ typedef struct{
 
 typedef struct q {
     int size;
-    //int originIndex;
+    int heapMax;
     int* heap;
 } *queuePtr, queue;
 
@@ -42,6 +42,7 @@ typedef struct q {
 void parseInput (int** input,  vertex* vertices, int max); 
 void mstPrim (vertex* vertices, int max);
 int heapExtractMin(queuePtr queue);
+void minHeapify (queuePtr queue, int index);
 
 int main (int argc, char* argv[]) {
 
@@ -201,7 +202,8 @@ void mstPrim (vertex* vertices, int max){
 
     queuePtr queue = malloc(sizeof(queue));
     queue->size = max;
-    int heap[max];
+    queue->heapMax = max;
+    int heap[max+1];
     int* heapPtr = heap;
 
     queue->heap = heapPtr;
@@ -210,7 +212,7 @@ void mstPrim (vertex* vertices, int max){
         vertices[vertIndex].key = -1;
         vertices[vertIndex].onQueue = 1;
         heap[vertIndex] = vertIndex;
-        
+        //printf("Max: %d\n", max);
     }
     vertices[0].key = 0;
 
@@ -220,7 +222,17 @@ void mstPrim (vertex* vertices, int max){
     
 
     for (int qSize = max; qSize >= 0; qSize--) {
-        int value = heapExtractMin(queue);
+        int u = heapExtractMin(queue);
+        vertices[u].onQueue = 0;
+        list_ptr tempNeighbor = vertices[u].adj;
+        
+        while (tempNeighbor->next != NULL) {
+            if(vertices[tempNeighbor->name].onQueue == 1 && tempNeighbor->weight < vertices[tempNeighbor->name].key) {
+                vertices[tempNeighbor->name].key = tempNeighbor->weight;
+            }
+            tempNeighbor = tempNeighbor->next;
+
+        }
     }
 
 }
@@ -231,17 +243,47 @@ int heapExtractMin(queuePtr queue) {
         printf("\nHeap underflow");
     }
 
-    int startIndex = (sizeof(queue->heap) - queue->size);
+    int startIndex = (queue->heapMax - queue->size);
 
-    printf("Qsize: %lu\n", sizeof(*queue->heap));
+    printf("Qsize: %d\n", queue->heapMax);
     printf("I: %d\n", startIndex);
 
     int max = queue->heap[startIndex];
+    queue->heap[startIndex] = queue->heap[queue->heapMax];
     printf("\nmax: %d", max);
 
-    for (int heapIndex = 0; heapIndex <= queue->size; heapIndex++) {
-        break;
+    queue->size -= 1;
+
+    minHeapify(queue, startIndex);
+    // for (int heapIndex = startIndex; heapIndex <= queue->size; heapIndex++) {
+    //     break;
+    // }
+
+    return max;
+}
+
+void minHeapify (queuePtr queue, int index) {
+    int left = index + 1;
+    int right = index + 2;
+
+    int largest = 0;
+
+    if (left >= queue->size && queue->heap[left] > queue->heap[index]) {
+        largest = left;
+    }
+    else {
+        largest = index;
     }
 
-    return 0;
+    if (right <= queue->size && queue->heap[right] > queue->heap[queue->heapMax]) {
+        largest = right;
+    }
+   
+    if (largest != index) {
+        int temp = queue->heap[index];
+        queue->heap[index] = queue->heap[queue->heapMax];
+        queue->heap[queue->heapMax] = temp;
+        minHeapify (queue, index);
+    }
 }
+
