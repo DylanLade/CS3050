@@ -188,11 +188,13 @@ void parseInput (int** input, vertex* vertices, int max) {
 void mstPrim (vertex* vertices, int max){
     for (int vertIndex = 0; vertIndex <= max; vertIndex++){
         vertices[vertIndex].key = -1;
-        vertices[vertIndex].onQueue = 0;
+        vertices[vertIndex].onQueue = 1;
     }
     vertices[0].key = 0;
 
-    while ()
+    for (int qSize = max; qSize >= 0; qSize--) {
+
+    }
 
 }
 
