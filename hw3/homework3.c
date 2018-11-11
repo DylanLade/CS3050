@@ -30,10 +30,18 @@ typedef struct{
     struct vert* vertices;
 } Graph;
 
+typedef struct q {
+    int size;
+    //int originIndex;
+    int* heap;
+} *queuePtr, queue;
+
+
+
 
 void parseInput (int** input,  vertex* vertices, int max); 
 void mstPrim (vertex* vertices, int max);
-void heapExtractMin(int Array[]);
+int heapExtractMin(queuePtr queue);
 
 int main (int argc, char* argv[]) {
 
@@ -99,6 +107,9 @@ int main (int argc, char* argv[]) {
 
     printf("Max: %d", max);
     printf("\n");
+
+
+    mstPrim(vertices, max);
 }
 
 
@@ -186,19 +197,51 @@ void parseInput (int** input, vertex* vertices, int max) {
 }
 
 void mstPrim (vertex* vertices, int max){
+    //int A[max] = NULL;
+
+    queuePtr queue = malloc(sizeof(queue));
+    queue->size = max;
+    int heap[max];
+    int* heapPtr = heap;
+
+    queue->heap = heapPtr;
+
     for (int vertIndex = 0; vertIndex <= max; vertIndex++){
         vertices[vertIndex].key = -1;
         vertices[vertIndex].onQueue = 1;
+        heap[vertIndex] = vertIndex;
+        
     }
     vertices[0].key = 0;
 
-    for (int qSize = max; qSize >= 0; qSize--) {
+    // int A[max];
+    // for (int index = 0; index <= )
 
+    
+
+    for (int qSize = max; qSize >= 0; qSize--) {
+        int value = heapExtractMin(queue);
     }
 
 }
 
 
-void heapExtractMin(int Heap[]) {
+int heapExtractMin(queuePtr queue) {
+    if (queue->size < 0) {
+        printf("\nHeap underflow");
+    }
 
+    int startIndex = (sizeof(queue->heap) - queue->size);
+
+    printf("Qsize: %lu\n", sizeof(*queue->heap));
+    printf("I: %d\n", startIndex);
+
+    int max = queue->heap[startIndex];
+    printf("\nmax: %d", max);
+
+    for (int heapIndex = 0; heapIndex <= queue->size; heapIndex++) {
+        break;
+    }
+
+    return 0;
 }
