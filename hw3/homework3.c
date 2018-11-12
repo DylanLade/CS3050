@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct e {
     int src;
@@ -9,7 +10,7 @@ typedef struct e {
     struct e *next;
 } edge, *edgePtr;
 
-typedef struct s { /* this is the structure for bulding list of neighbors*/
+typedef struct s {
 int name;
 int weight;
 struct s *next;
@@ -53,7 +54,7 @@ int main (int argc, char* argv[]) {
 
     int max = 0;
     int maxWeight = 0;
-    int index = 3;
+    int index = 0;
 
     edgePtr edgeListHead = malloc(sizeof(edge));
     edgePtr tempEdge = edgeListHead;
@@ -68,7 +69,7 @@ int main (int argc, char* argv[]) {
 
         fscanf(inptr,"%d", &input);
 
-        switch (index % 3) {
+        switch ((index + 3) % 3) {
             case 0:
                 tempEdge->src = input;
                 if (max <= tempEdge->src) max = tempEdge->src;              
@@ -83,8 +84,10 @@ int main (int argc, char* argv[]) {
                 if (maxWeight <= input) maxWeight = input;
 
                 tempEdge->weight = input;
-                tempEdge->next = malloc(sizeof(edge));
+                tempEdge->next   = malloc(sizeof(edge));
+
                 printf("s:%d | d:%d | w:%d\n", tempEdge->src, tempEdge->dst, tempEdge->weight);
+
                 tempEdge = tempEdge->next;
                 break;
 
@@ -113,9 +116,9 @@ int main (int argc, char* argv[]) {
 
 
 void parseInput (edgePtr edgeListHead, vertex* vertices, int max) {
-    int vertIndex1 = 0;
-    int vertIndex2 = 0;
-    int tempWeight = 0;
+    int vertIndex1   = 0;
+    int vertIndex2   = 0;
+    int tempWeight   = 0;
     edgePtr tempEdge = edgeListHead;
 
     for (int vertArrayIndex = 1; vertArrayIndex <= max; vertArrayIndex++) {
@@ -123,13 +126,19 @@ void parseInput (edgePtr edgeListHead, vertex* vertices, int max) {
         vertices[vertArrayIndex].adj = NULL;
     }
 
-    while(tempEdge->next != NULL){
+    while (tempEdge->next != NULL) {
         vertIndex1 = tempEdge->src;
         vertIndex2 = tempEdge->dst;
         tempWeight = tempEdge->weight;
 
-        printf("v:%d | v:%d | w:%d\n", vertIndex1, vertIndex2, tempWeight);
+        //printf("v:%d | v:%d | w:%d\n", vertIndex1, vertIndex2, tempWeight);
 
+        // if (vertIndex1 < vertIndex2) {
+        //     insertVert(vertices, vertIndex1, vertIndex2, tempWeight);
+        // }
+        // else {
+        //     insertVert(vertices, vertIndex2, vertIndex1, tempWeight);
+        // }
         insertVert(vertices, vertIndex1, vertIndex2, tempWeight);
         insertVert(vertices, vertIndex2, vertIndex1, tempWeight);
 
@@ -138,18 +147,18 @@ void parseInput (edgePtr edgeListHead, vertex* vertices, int max) {
 }
 
 void insertVert (vertex* vertices, int vertIndex, int adjIndex, int weight) {
-    printf("Insert | V:%d | Adj:%d | W:%d\n", vertIndex, adjIndex, weight);
+    //printf("Insert | V:%d | Adj:%d | W:%d\n", vertIndex, adjIndex, weight);
 
     vertex* tempVert = &vertices[vertIndex];
 
     list_ptr newNeighbor = malloc(sizeof(list_ptr));
-    newNeighbor->next = NULL;
-    newNeighbor->name = adjIndex;
+    newNeighbor->next   = NULL;
+    newNeighbor->name   = adjIndex;
     newNeighbor->weight = weight;   
 
     if (tempVert->adj == NULL || tempVert->adj->name >= newNeighbor->name) { 
         newNeighbor->next = tempVert->adj; 
-        tempVert->adj = newNeighbor; 
+        tempVert->adj     = newNeighbor; 
     } 
     else { 
         list_ptr current = tempVert->adj; 
@@ -157,26 +166,26 @@ void insertVert (vertex* vertices, int vertIndex, int adjIndex, int weight) {
             current = current->next; 
         } 
         newNeighbor->next = current->next; 
-        current->next = newNeighbor; 
+        current->next     = newNeighbor; 
     }  
 }
 
 
-void mstPrim (vertex* vertices, int max, int maxWeight){
-    printf("PRIM\n");
+void mstPrim (vertex* vertices, int max, int maxWeight) { 
+    printf("\nPRIM\n\n");
 
     queuePtr queue = malloc(sizeof(queue));
-    queue->size = max;
     int heap[max];
     int* heapPtr = heap;
-    queue->heap = heapPtr;
+    queue->heap  = heapPtr;
+    queue->size  = max;
 
     for (int heapIndex = 1; heapIndex <= max; heapIndex++) {
         heap[heapIndex] = heapIndex;
     }
 
-    for (int vertIndex = 1; vertIndex <= max; vertIndex++){
-        vertices[vertIndex].key = maxWeight + 1;
+    for (int vertIndex = 1; vertIndex <= max; vertIndex++) {
+        vertices[vertIndex].key     = maxWeight + 1;
         vertices[vertIndex].onQueue = 1;
     }
 
@@ -184,10 +193,11 @@ void mstPrim (vertex* vertices, int max, int maxWeight){
 
     vertices[1].key = 0;
 
-    while (queue->size > 1){
+    while (queue->size > 1) {
         int u = heapExtractMin(queue);
         mst += vertices[u].key;
-        printf("\nKEY: %d\n", vertices[u].key);
+        //mst += u;
+        //printf("\nKEY: %d\n", vertices[u].key);
         vertices[u].onQueue = 0;
 
         list_ptr tempNeighbor = vertices[u].adj;
@@ -202,25 +212,27 @@ void mstPrim (vertex* vertices, int max, int maxWeight){
                 
             }
 
-            if(vertices[neighborIndex].onQueue == 1 && tempNeighbor->weight < vertices[neighborIndex].key) {
+            if (vertices[neighborIndex].onQueue == 1 && tempNeighbor->weight < vertices[neighborIndex].key) {
                 vertices[neighborIndex].key = tempNeighbor->weight;
 
                 heapDecreaseKey(queue, queue->size, vertices[neighborIndex].key);        
 
-                printf("\nV: %d Weight %d\n", neighborIndex, vertices[neighborIndex].key);
+                printf("\nE: %d->%d Weight %d\n", u, neighborIndex, vertices[neighborIndex].key);
 
                 //mst += tempNeighbor->weight;
             }
 
             //mst += tempNeighbor->weight;
             tempNeighbor = tempNeighbor->next;         
-        }   
+        }
+        printf("\n");   
     }
 }
 
 
 void printHeap (queuePtr queue, int max) {
-    for(int arrIndex = 1; arrIndex < queue->size; arrIndex++) {
+    printf("Size:%d | Q: ", queue->size-1);
+    for (int arrIndex = 1; arrIndex < queue->size; arrIndex++) {
         printf("%d ", queue->heap[arrIndex]);
     }
     printf("\n");
@@ -235,17 +247,16 @@ int compare (vertex v[], int i, int j) {
 
 
 void heapDecreaseKey (queuePtr queue, int index, int key) {
-
+    
     if (key > queue->heap[index]) {
-        printf("\nError new key is larger than current key\n");
-        printf("Key | New:%d  Old:%d\n", key, queue->heap[index]);
+        printf("\nError new key is larger than current key | New:%d  Old:%d\n", key, queue->heap[index]);
     }
 
     queue->heap[index] = key;
 
-    while (index > 1 && queue->heap[index/2] > queue->heap[index]){
-        int temp = queue->heap[index];
-        queue->heap[index] = queue->heap[index/2];
+    while (index > 0 && queue->heap[index/2] > queue->heap[index]) {
+        int temp             = queue->heap[index];
+        queue->heap[index]   = queue->heap[index/2];
         queue->heap[index/2] = temp;
         index--;
     }
@@ -256,10 +267,9 @@ int heapExtractMin (queuePtr queue) {
     if (queue->size < 1) {
         printf("\nHeap underflow");
     }
-    printf("Qsize: %d\n", queue->size-1);
 
     int min = queue->heap[1];
-    printf("\nmin: %d\n", min);
+    printf("min: %d\n", min);
 
     queue->heap[1] = queue->heap[queue->size];
     
@@ -275,9 +285,9 @@ void minHeapify (queuePtr queue, int index) {
     calls += 1;
     // int left = ((index+1) * 2)-1;
     // int right = ((index+1) * 2);
-    int left = index * 2;
+    int left  = index * 2;
     int right = (index * 2) + 1;
-    printf("l:%d | r:%d\n", left, right);
+    
 
     int smallest = 1;
 
@@ -293,9 +303,11 @@ void minHeapify (queuePtr queue, int index) {
     }
    
     if (smallest != index) {
-        int temp = queue->heap[index];
-        queue->heap[index] = queue->heap[smallest];
+        int temp              = queue->heap[index];
+        queue->heap[index]    = queue->heap[smallest];
         queue->heap[smallest] = temp;
-        minHeapify (queue, smallest);
+        printf("l:%d | r:%d\n", left, right);
+        
+        minHeapify(queue, smallest);
     }
 }
