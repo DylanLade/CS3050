@@ -178,9 +178,9 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
     int heap[max];
     int* heapPtr = heap;
     queue->heap  = heapPtr;
-    queue->size  = max;
+    queue->size  = max-1;
 
-    for (int heapIndex = 1; heapIndex <= max; heapIndex++) {
+    for (int heapIndex = 1; heapIndex <= queue->size; heapIndex++) {
         heap[heapIndex] = heapIndex;
     }
 
@@ -193,7 +193,7 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
     vertices[1].key = 0;
 
-    while (queue->size > 1) {
+    while (queue->size > 0) {
         int u = heapExtractMin(queue);
         mst += vertices[u].key;
         //mst += u;
@@ -231,8 +231,9 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
 
 void printHeap (queuePtr queue, int max) {
-    printf("Size:%d | Q: ", queue->size-1);
-    for (int arrIndex = 1; arrIndex < queue->size; arrIndex++) {
+    printf("Size:%d | Q: ", queue->size);
+    for (int arrIndex = 1; arrIndex <= queue->size; arrIndex++) {
+    //for (int arrIndex = 1; arrIndex < max; arrIndex++) {
         printf("%d ", queue->heap[arrIndex]);
     }
     printf("\n");
@@ -247,14 +248,14 @@ int compare (vertex v[], int i, int j) {
 
 
 void heapDecreaseKey (queuePtr queue, int index, int key) {
-    
+
     if (key > queue->heap[index]) {
         printf("\nError new key is larger than current key | New:%d  Old:%d\n", key, queue->heap[index]);
     }
 
     queue->heap[index] = key;
 
-    while (index > 0 && queue->heap[index/2] > queue->heap[index]) {
+    while (index > 1 && queue->heap[index/2] > queue->heap[index]) {
         int temp             = queue->heap[index];
         queue->heap[index]   = queue->heap[index/2];
         queue->heap[index/2] = temp;
@@ -288,7 +289,6 @@ void minHeapify (queuePtr queue, int index) {
     int left  = index * 2;
     int right = (index * 2) + 1;
     
-
     int smallest = 1;
 
     if (left <= queue->size && queue->heap[left] < queue->heap[index]) {
@@ -307,7 +307,7 @@ void minHeapify (queuePtr queue, int index) {
         queue->heap[index]    = queue->heap[smallest];
         queue->heap[smallest] = temp;
         printf("l:%d | r:%d\n", left, right);
-        
+
         minHeapify(queue, smallest);
     }
 }
