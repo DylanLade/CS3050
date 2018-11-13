@@ -101,7 +101,7 @@ int main (int argc, char* argv[]) {
     tempEdge->next = NULL;
 
     printf("MaxV: %d  |  MaxW: %d\n", max, maxWeight);
-    max+=1;
+    //max+=1;
     vertex vertices[max];
 
     vertex* verticesPtr = vertices;
@@ -121,7 +121,7 @@ void parseInput (edgePtr edgeListHead, vertex* vertices, int max) {
     int tempWeight   = 0;
     edgePtr tempEdge = edgeListHead;
 
-    for (int vertArrayIndex = 1; vertArrayIndex <= max; vertArrayIndex++) {
+    for (int vertArrayIndex = 0; vertArrayIndex < max; vertArrayIndex++) {
         vertex tempVert = vertices[vertArrayIndex];
         vertices[vertArrayIndex].adj = NULL;
     }
@@ -149,7 +149,7 @@ void parseInput (edgePtr edgeListHead, vertex* vertices, int max) {
 void insertVert (vertex* vertices, int vertIndex, int adjIndex, int weight) {
     //printf("Insert | V:%d | Adj:%d | W:%d\n", vertIndex, adjIndex, weight);
 
-    vertex* tempVert = &vertices[vertIndex];
+    vertex* tempVert = &vertices[vertIndex-1];
 
     list_ptr newNeighbor = malloc(sizeof(list_ptr));
     newNeighbor->next   = NULL;
@@ -178,24 +178,24 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
     int heap[max];
     int* heapPtr = heap;
     queue->heap  = heapPtr;
-    queue->size  = max-1;
+    queue->size  = max;
 
-    for (int heapIndex = 1; heapIndex <= queue->size; heapIndex++) {
-        heap[heapIndex] = heapIndex;
+    for (int heapIndex = 0; heapIndex < max; heapIndex++) {
+        heap[heapIndex] = heapIndex + 1;
     }
 
-    for (int vertIndex = 1; vertIndex <= max; vertIndex++) {
+    for (int vertIndex = 0; vertIndex < max; vertIndex++) {
         vertices[vertIndex].key     = maxWeight + 1;
         vertices[vertIndex].onQueue = 1;
     }
 
     printHeap(queue, max);
 
-    vertices[1].key = 0;
+    vertices[0].key = 0;
 
-    while (queue->size > 0) {
+    while (queue->size > 1) {
         int u = heapExtractMin(queue);
-        mst += vertices[u].key;
+        //mst += vertices[u].key;
         //mst += u;
         //printf("\nKEY: %d\n", vertices[u].key);
         vertices[u].onQueue = 0;
@@ -205,12 +205,13 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
         printHeap(queue, max);
         while (tempNeighbor != NULL) {
             int neighborIndex = tempNeighbor->name;
+            //neighborIndex;
             //printf("n:%d \n", neighborIndex);
 
-            if (vertices[u].key == vertices[neighborIndex].key) {
-                if (neighborIndex > u) neighborIndex = u;
+            // if (vertices[u].key == vertices[neighborIndex].key) {
+            //     if (neighborIndex > u) neighborIndex = u;
                 
-            }
+            // }
 
             if (vertices[neighborIndex].onQueue == 1 && tempNeighbor->weight < vertices[neighborIndex].key) {
                 vertices[neighborIndex].key = tempNeighbor->weight;
@@ -219,7 +220,7 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
                 printf("\nE: %d->%d Weight %d\n", u, neighborIndex, vertices[neighborIndex].key);
 
-                //mst += tempNeighbor->weight;
+                mst += vertices[neighborIndex].key;
             }
 
             //mst += tempNeighbor->weight;
@@ -232,7 +233,7 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
 void printHeap (queuePtr queue, int max) {
     printf("Size:%d | Q: ", queue->size);
-    for (int arrIndex = 1; arrIndex <= queue->size; arrIndex++) {
+    for (int arrIndex = 0; arrIndex < queue->size; arrIndex++) {
     //for (int arrIndex = 1; arrIndex < max; arrIndex++) {
         printf("%d ", queue->heap[arrIndex]);
     }
@@ -255,11 +256,11 @@ void heapDecreaseKey (queuePtr queue, int index, int key) {
 
     queue->heap[index] = key;
 
-    while (index > 1 && queue->heap[index/2] > queue->heap[index]) {
+    while (index > 0 && queue->heap[index/2] > queue->heap[index]) {
         int temp             = queue->heap[index];
         queue->heap[index]   = queue->heap[index/2];
         queue->heap[index/2] = temp;
-        index--;
+        index = index / 2;
     }
 }
 
@@ -269,14 +270,14 @@ int heapExtractMin (queuePtr queue) {
         printf("\nHeap underflow");
     }
 
-    int min = queue->heap[1];
+    int min = queue->heap[0];
     printf("min: %d\n", min);
 
-    queue->heap[1] = queue->heap[queue->size];
+    queue->heap[0] = queue->heap[queue->size];
     
     queue->size -= 1;
 
-    minHeapify(queue, 1);
+    minHeapify(queue, 0);
 
     return min;
 }
@@ -286,10 +287,10 @@ void minHeapify (queuePtr queue, int index) {
     calls += 1;
     // int left = ((index+1) * 2)-1;
     // int right = ((index+1) * 2);
-    int left  = index * 2;
-    int right = (index * 2) + 1;
+    int left  = (index * 2) + 1;
+    int right = (index * 2) + 2;
     
-    int smallest = 1;
+    int smallest = index;
 
     if (left <= queue->size && queue->heap[left] < queue->heap[index]) {
         smallest = left;
