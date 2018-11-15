@@ -214,13 +214,14 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
             //     if (neighborIndex > u) neighborIndex = u;
                 
             // }
-
+            // onQueue -> index or V on heap
             if (vertices[neighborIndex].onQueue == 1 && tempNeighbor->weight < vertices[neighborIndex].key) {
                 vertices[neighborIndex].key = tempNeighbor->weight;
 
-                heapDecreaseKey(queue, queue->size, vertices[neighborIndex].key);        
+                // heapDecreaseKey(queue, queue->size, vertices[neighborIndex].key);       // heap decrease key for on queue  
+                heapDecreaseKey(queue, neighborIndex, vertices[neighborIndex].key);  
 
-                printf("\nE: %d->%d Weight %d\n", u, neighborIndex, vertices[neighborIndex].key);
+                printf("\nE: %d->%d Weight %d\n", u+1, neighborIndex+1, vertices[neighborIndex].key);
 
                 //mst += vertices[neighborIndex].key;
                 //mst += tempNeighbor->weight;
@@ -269,7 +270,7 @@ void heapDecreaseKey (queuePtr queue, int index, int key) {
 
 
 int heapExtractMin (queuePtr queue) {
-    if (queue->size < 1) {
+    if (queue->size < 0) {
         printf("\nHeap underflow");
     }
 
