@@ -30,12 +30,12 @@ typedef struct q {
 
 void parseInput (edgePtr edgeListHead,  vertex* vertices, int max); 
 void mstPrim (vertex* vertices, int max, int maxWeight);
-int heapExtractMin(queuePtr queue);
-void minHeapify (queuePtr queue, int index);
+int heapExtractMin(vertex* vertices, queuePtr queue);
+void minHeapify (vertex* vertices, queuePtr queue, int index);
 void insertVert (vertex* vertices, int vertIndex, int adjIndex, int weight);
-void heapDecreaseKey (queuePtr queue, int index, int key); 
+void heapDecreaseKey (vertex* vertices, queuePtr queue, int index, int key); 
 int compare(vertex v[], int i, int j); 
-void printHeap (queuePtr queue, int max);
+void printHeap (vertex* vertices, queuePtr queue, int max);
 
 int calls = 0;
 int mst = 0;
@@ -187,15 +187,15 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
     for (int vertIndex = 0; vertIndex < max; vertIndex++) {
         vertices[vertIndex].key     = maxWeight + 1;
-        vertices[vertIndex].onQueue = 1;
+        vertices[vertIndex].onQueue = vertIndex;
     }
 
-    printHeap(queue, max);
+    printHeap(vertices, queue, max);
 
     vertices[0].key = 0;
 
     while (queue->size > 0) {
-        int u = heapExtractMin(queue);
+        int u = heapExtractMin(vertices, queue);
         u-=1;
         mst += vertices[u].key;
         //mst += u;
@@ -204,7 +204,7 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
         list_ptr tempNeighbor = vertices[u].adj;
         
-        printHeap(queue, max);
+        printHeap(vertices, queue, max);
         while (tempNeighbor != NULL) {
             int neighborIndex = tempNeighbor->name;
             neighborIndex -= 1;
@@ -215,11 +215,11 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
                 
             // }
             // onQueue -> index or V on heap
-            if (vertices[neighborIndex].onQueue == 1 && tempNeighbor->weight < vertices[neighborIndex].key) {
+            if (vertices[neighborIndex].onQueue != 0 && tempNeighbor->weight < vertices[neighborIndex].key) {
                 vertices[neighborIndex].key = tempNeighbor->weight;
 
                 // heapDecreaseKey(queue, queue->size, vertices[neighborIndex].key);       // heap decrease key for on queue  
-                heapDecreaseKey(queue, neighborIndex, vertices[neighborIndex].key);  
+                heapDecreaseKey(vertices, queue, neighborIndex, vertices[neighborIndex].key);  
 
                 printf("\nE: %d->%d Weight %d\n", u+1, neighborIndex+1, vertices[neighborIndex].key);
 
@@ -235,11 +235,16 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 }
 
 
-void printHeap (queuePtr queue, int max) {
+void printHeap (vertex* vertices, queuePtr queue, int max) {
     printf("Size:%d | Q: ", queue->size);
     for (int arrIndex = 0; arrIndex < queue->size; arrIndex++) {
     //for (int arrIndex = 1; arrIndex < max; arrIndex++) {
         printf("%d ", queue->heap[arrIndex]);
+    }
+
+    printf("\nV: ");
+    for (int vertIndex = 0; vertIndex < max; vertIndex++) {
+        printf("%d-%d | ", vertIndex+1, vertices[vertIndex].key);
     }
     printf("\n");
 }
@@ -252,7 +257,7 @@ int compare (vertex v[], int i, int j) {
 }
 
 
-void heapDecreaseKey (queuePtr queue, int index, int key) {
+void heapDecreaseKey (vertex* vertices, queuePtr queue, int index, int key) {
 
     if (key > queue->heap[index-1]) {
         printf("\nError new key is larger than current key | New:%d  Old:%d\n", key, queue->heap[index-1]);
@@ -269,7 +274,7 @@ void heapDecreaseKey (queuePtr queue, int index, int key) {
 }
 
 
-int heapExtractMin (queuePtr queue) {
+int heapExtractMin (vertex* vertices, queuePtr queue) {
     if (queue->size < 0) {
         printf("\nHeap underflow");
     }
@@ -281,13 +286,13 @@ int heapExtractMin (queuePtr queue) {
     
     queue->size -= 1;
 
-    minHeapify(queue, 0);
+    minHeapify(vertices, queue, 0);
 
     return min;
 }
 
 
-void minHeapify (queuePtr queue, int index) {
+void minHeapify (vertex* vertices, queuePtr queue, int index) {
     calls += 1;
     int left = ((index+1) * 2)-1;
     int right = ((index+1) * 2);
@@ -315,6 +320,8 @@ void minHeapify (queuePtr queue, int index) {
         queue->heap[smallest] = temp;
         printf("l:%d | r:%d\n", left, right);
 
-        minHeapify(queue, smallest);
+        vertices[queue->heap[index]].onQueue = index; 
+
+        minHeapify(vertices, queue, smallest);
     }
 }
