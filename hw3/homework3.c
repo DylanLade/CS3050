@@ -101,8 +101,12 @@ int main (int argc, char* argv[]) {
 
     mstPrim(vertices, max, maxWeight);
 
+    //printf("MaxV: %d  |  MaxW: %d\n", max, maxWeight);
+
     printf("\nCalls: %d\n", calls);
     printf("MST: %d\n\n", mst);
+
+
 }
 
 
@@ -167,6 +171,9 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
     queue->heap  = heapPtr;
     queue->size  = max;
 
+    vertices[0].key = queue->size;
+    queue->heap[0] = maxWeight;
+
     for (int heapIndex = 1; heapIndex <= queue->size; heapIndex++) {
         heap[heapIndex] = heapIndex;
     }
@@ -177,30 +184,35 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
     }  
     
     vertices[1].key = 0;
-    //printHeap(vertices, queue, max);
 
     while (queue->size > 0) {
         printHeap(vertices, queue, max);
         int u = heapExtractMin(vertices, queue);
-        mst += vertices[u].key;
+        //printf("| U:%d  |\n", u);
+        //mst += vertices[u].key;
+        //printf("MST: %d\n", mst);
+        
 
         if(vertices[u].adj != NULL){
             list_ptr tempNeighbor = vertices[u].adj;
-
+            
             while ( tempNeighbor != NULL) {
                 int neighborIndex = tempNeighbor->name;
-
+                printf("NI:%d w:%d k:%d oQ:%d\n", neighborIndex, tempNeighbor->weight, vertices[neighborIndex].key, vertices[neighborIndex].onQueue);
                 if (vertices[neighborIndex].onQueue > 0 && tempNeighbor->weight < vertices[neighborIndex].key) {
                     vertices[neighborIndex].key = tempNeighbor->weight;
                     heapDecreaseKey(vertices, queue, vertices[neighborIndex].onQueue, tempNeighbor->weight);
 
-                    //printf("\nE: %d->%d Weight %d\n", u, neighborIndex, vertices[neighborIndex].key);
+                    //printf("\n---|  E: %d->%d Weight %d\n", u, neighborIndex, vertices[neighborIndex].key);
                 }
+                //printf("\nE: %d->%d Weight %d\n", u, neighborIndex, vertices[neighborIndex].key);
                 tempNeighbor = tempNeighbor->next;         
             }
             //printHeap(vertices, queue, max);
         }
-        //mst += vertices[u].key;
+        mst += vertices[u].key;
+        
+        printf("\nMST: %d\n", mst);
         //printf("\n");   
     }
 }
@@ -208,10 +220,13 @@ void mstPrim (vertex* vertices, int max, int maxWeight) {
 
 void printHeap (vertex* vertices, queuePtr queue, int max) {
     printf("Size:%d | Q: ", queue->size);
-    for (int arrIndex = 1; arrIndex <= queue->size; arrIndex++) {
-        printf("v:%d w:%d | ", queue->heap[arrIndex], vertices[queue->heap[arrIndex]].key);
+    for (int arrIndex = 1; arrIndex <= max; arrIndex++) {
+        printf("v:%d w:%d oQ:%d | ", queue->heap[arrIndex], vertices[queue->heap[arrIndex]].key, vertices[queue->heap[arrIndex]].onQueue);
     }
     printf("\n");
+    // for (int arrIndex = max - queue->size+1; arrIndex <= max; arrIndex++) {
+    //     vertices[arrIndex].onQueue = 0;
+    // }
 }
 
 
@@ -232,7 +247,13 @@ void heapDecreaseKey (vertex* vertices, queuePtr queue, int index, int key) {
 
     int parent = (index / 2);
 
-    while (index > 1 && compare(vertices, queue->heap[index], queue->heap[parent])) {
+    // if (parent == 0) {
+    //     parent = 1;
+    //     index = 1;
+    // }
+
+    printf("\n++ DKEY1 | A:%d | I:%d | P:%d\n", queue->heap[parent], index, parent);
+    while (index > 0 && compare(vertices, queue->heap[index], queue->heap[parent])) {
         printf("++ DKEYS | switching %d:%d and %d:%d\n",queue->heap[parent], vertices[queue->heap[parent]].key, queue->heap[index], vertices[queue->heap[index]].key);
         int temp             = queue->heap[index];
         queue->heap[index]   = queue->heap[parent];
@@ -243,48 +264,56 @@ void heapDecreaseKey (vertex* vertices, queuePtr queue, int index, int key) {
 
         index = parent;
         parent = parent / 2;
+
+        //if (parent == 0) parent = 1;
     }
 }
 
 
-
-
 int heapExtractMin (vertex* vertices, queuePtr queue) {
-    if (queue->size < 1) {
+    if (queue->size < 0) {
         printf("\nHeap underflow");
     }
 
     int min = queue->heap[1];
-    printf("min: %d\n", min);
+    
+    vertices[min].onQueue = 0;
+    
 
     queue->heap[1] = queue->heap[queue->size];
+    
+    vertices[0].key = queue->size;
+    
     
     queue->size -= 1;
 
     minHeapify(vertices, queue, 1);
+    printf("min: %d\n", min);
 
     return min;
 }
 
 
 void minHeapify (vertex* vertices, queuePtr queue, int index) {
+    printf("\nf: %d\n", queue->size);
     calls += 1;
 
-    //if (queue->size > 2) {
+    if (queue->size != 1) {
         int left = index * 2;
         int right = (index * 2) + 1;
 
         int smallest = index;
 
         if (left <= queue->size && compare(vertices, queue->heap[left], queue->heap[smallest])) {
+            printf("MH | L | left:%d   min:%d\n", left, smallest);
             smallest = left;
-            
         }
         else {
             smallest = index;
         }
 
         if (right <= queue->size && compare(vertices, queue->heap[right], queue->heap[smallest])) {
+            printf("MH | R | right:%d   min:%d\n", right, smallest);
             smallest = right;
 
         }
@@ -300,23 +329,31 @@ void minHeapify (vertex* vertices, queuePtr queue, int index) {
             queue->heap[smallest] = temp;
             vertices[temp].onQueue = smallest;
 
-            //printf("l:%d | r:%d\n", left, right);      
+            printf("l:%d | r:%d\n", left, right);      
 
             minHeapify(vertices, queue, smallest);
         }
-    // }
+    }
     // else if(queue->size == 2 && compare(vertices, queue->heap[2], queue->heap[1])){
     //     int temp              = queue->heap[1];
-            
+    //     printf("\n\nCCCCCCCCCCC\n");
     //     queue->heap[1]    = queue->heap[2];
     //     vertices[queue->heap[1]].onQueue = 1;
 
     //     queue->heap[2] = temp;
     //     vertices[temp].onQueue = 2;
 
-    //     printf("switching %d:%d and %d:%d\n",queue->heap[2], vertices[queue->heap[2]].key, queue->heap[1], vertices[queue->heap[1]].key);
+    //     //printf("---| switching %d:%d and %d:%d\n",queue->heap[1], vertices[queue->heap[1]].key, queue->heap[2], vertices[queue->heap[2]].key);
     //     //printf("--| l:%d | r:%d |--\n", left, right);      
 
     //     minHeapify(vertices, queue, 1);
     // }
+    else if(queue->size == 1){
+        vertices[queue->heap[1]].onQueue = 1;
+        //queue->heap[1] = queue->heap[2];
+        //printf("---| switching %d:%d and %d:%d\n",queue->heap[2], vertices[queue->heap[2]].key, queue->heap[1], vertices[queue->heap[1]].key);
+        //printf("--| l:%d | r:%d |--\n", left, right);      
+
+        //minHeapify(vertices, queue, 1);
+    }
 }
